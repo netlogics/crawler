@@ -5,6 +5,6 @@ ActiveRecord::Base.establish_connection(
   encoding: 'utf8',
   database: 'leaselabs_development',
   pool: 5,
-  username: 'philipsmerud'
+  username: 'developer'
  )
 
