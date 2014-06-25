@@ -12,10 +12,19 @@ module Crawler
     def initialize(uri='http://www.google.com')
       begin
         agent = Mechanize.new
+        agent.set_proxy 'localhost', 3000
         @page = agent.get(uri)
       rescue Mechanize::ResponseCodeError => ex
         @errors = "Mechanize::ResponseCodeError: #{ex.message}"
         @@logger.error "Mechanize::ResponseCodeError: #{ex.message}"
+      rescue Mechanize::RedirectLimitReachedError => ex
+        @errors = "Mechanize::RedirectLimitReachedError: #{ex.message}"
+        @@logger.error "Mechanize::RedirectLimitReachedError: #{ex.message}"
+      rescue Exception => ex
+        # unknow exception is my own catch all not an actual 
+        # Mechanize exception
+        @errors = "Mechanize::UnknownException: #{ex.message}"
+        @@logger.error "Mechanize::UnknownException: #{ex.message}"
       end
     end
 

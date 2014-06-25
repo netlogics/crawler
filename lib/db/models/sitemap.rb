@@ -1,10 +1,13 @@
 module Crawler
   class Sitemap < ActiveRecord::Base
-    before_validation :remove_trailing_slash
-    validates_uniqueness_of :url, scope: :company_id, message: "Invalid url entry. Url already exists for the company"
+    belongs_to :company
 
-    def remove_trailing_slash?
-      url.gsub!(/\/$/, "") if url.end_with? "/"
+    before_validation :clean
+    validates_uniqueness_of :url, scope: :company_id, message: "Url already exists for this company"
+
+    def clean
+      # Removes trailing /'s and/or #'s
+      url.gsub!(/[\/\#]*$/, "")
     end
   end
 end
