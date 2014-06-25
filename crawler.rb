@@ -25,28 +25,35 @@ def has_properties(company)
   company.properties.count > 0
 end
 
+def clear_sitemaps
+  Crawler::Sitemap.delete_all
+end
+
 logger = Logger.new("lib/logs/info.log")
 logger.level = Logger::INFO
 
 urls = []
-companies = Crawler::Company.take(5)
-companies.each do |company|
+clear_sitemaps
+Crawler::Company.find_each do |company|
+  puts company.custom_domain
   logger.info "Company - #{company.name}:#{company.id}"
   unless company.custom_domain.nil?
     urls = crawl(company.custom_domain)
     if has_properties(company)
-      company.properties.each do |property|
+      company.properties.find_each do |property|
         urls += crawl(company.custom_domain, property.subdomain)
       end
     end
 
-    urls.each {|url| puts url}
+    logger.info "Adding #{urls.count} URL's for #{company.name}"
+    urls.each do |link|
+      Crawler::Sitemap.create(url: link, company_id: company.id)
+    end
+
   else
     logger.info "No custom domain for #{company.name}:#{company.id}"
   end
 end
 
-
-#url = URI(urls.first.strip)
-#puts url.scheme unless url.nil
+puts "\n\nCRAWLING COMPLETE"
 
