@@ -21,6 +21,7 @@ def crawl(domain, subdomain = "")
   urls
 end
 
+
 def has_properties(company)
   company.properties.count > 0
 end
@@ -28,12 +29,19 @@ end
 def clear_sitemaps
   Crawler::Sitemap.delete_all
 end
-
+# Logger
 logger = Logger.new("lib/logs/info.log")
 logger.level = Logger::INFO
 
+# Add sitemap urls to array
 urls = []
+
+# Clear existing Crawler::Sitemap entries
 clear_sitemaps
+
+# Loop through companies with a custom_domain and their properties.
+# Crawl their domains to retrieve a collection of urls to be used 
+# for generating a company sitemap that includes properties
 Crawler::Company.find_each do |company|
   puts company.custom_domain
   logger.info "Company - #{company.name}:#{company.id}"
@@ -42,8 +50,16 @@ Crawler::Company.find_each do |company|
     if has_properties(company)
       company.properties.find_each do |property|
         urls += crawl(company.custom_domain, property.subdomain)
+        # Add property home page to ensure it is present
+        # even if there are no links to it within the navigation.
+        # duplicates will be removed by the model validator
+        urls << "http://www.#{company.custom_domain}/#{property.subdomain}"
       end
     end
+    # Add company home page to ensure it is present
+    # even if there are no links to it within the navigation.
+    # duplicates will be removed by the model validator
+    urls << "http://www.#{company.custom_domain}"
 
     logger.info "Adding #{urls.count} URL's for #{company.name}"
     urls.each do |link|
