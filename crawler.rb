@@ -12,6 +12,13 @@ def crawl(domain, subdomain = "")
     link = link[0] == '/' ? link[1..link.length] : link
     # Insert http:// to beginning of string unless they already begin with http://
     link.insert(0, "http://www.#{domain}/") unless link.include?("http://") || link.include?("https://")
+
+    # Some links contain double urls ie) http://www.example.com//youtube.com. Skip to the next loop
+    # iteration if link contains double entries
+    if (/.*(\/\/).*(\/\/)/.match(link).captures.size == 2)
+      next
+    end
+
     # If the link contains the company custom domain or property slug it is valid. Otherwise
     # it's an outside link. Remove outside links from result set
     #if link.include?("arroyo-vista-apartments")
