@@ -2,10 +2,6 @@
 
 TODO: Write a gem description
 
-> blab lab blah
-
-:thumbsup:
-
 ## Installation
 
 Add this line to your application's Gemfile:
